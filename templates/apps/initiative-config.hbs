@@ -1,31 +1,44 @@
 <form autocomplete="off">
-    <p class="notes">{{localize "DND5E.InitiativeConfigHint"}}</p>
+  <p class="notes">{{localize "SdS.InitiativeConfigHint"}}</p>
 
-    <div class="form-group">
-        <label>{{localize "DND5E.AbilityModifier"}}</label>
-        <div class="form-fields">
-            <select name="system.attributes.init.ability">
-                {{selectOptions abilities selected=ability blank=""}}
-            </select>
-        </div>
+  <div class="form-group">
+    <label>{{localize "SdS.AbilityModifier"}}</label>
+    <div class="form-fields">
+      <select name="system.attributes.init.ability">
+        {{selectOptions abilities selected=ability blank=""}}
+      </select>
     </div>
+  </div>
 
-    <div class="form-group">
-        <label>{{localize "DND5E.InitiativeBonus"}}</label>
-        <div class="form-fields">
-            <input name="system.attributes.init.bonus" type="text" value="{{bonus}}"/>
-        </div>
+  <div class="form-group">
+    <label>{{localize "SdS.InitiativeBonus"}}</label>
+    <div class="form-fields">
+      <input
+        name="system.attributes.init.bonus"
+        type="text"
+        value="{{bonus}}"
+      />
     </div>
+  </div>
 
-    <div class="form-group">
-        <label>{{localize "DND5E.FlagsAlert"}}</label>
-        <input type="checkbox" name="flags.dnd5e.initiativeAlert" {{checked initiativeAlert}}/>
-    </div>
+  <div class="form-group">
+    <label>{{localize "SdS.FlagsAlert"}}</label>
+    <input
+      type="checkbox"
+      name="flags.sds.initiativeAlert"
+      {{checked initiativeAlert}}
+    />
+  </div>
 
-    <div class="form-group">
-        <label>{{localize "DND5E.FlagsInitiativeAdv"}}</label>
-        <input type="checkbox" name="flags.dnd5e.initiativeAdv" {{checked initiativeAdv}}/>
-    </div>
+  <div class="form-group">
+    <label>{{localize "SdS.FlagsInitiativeAdv"}}</label>
+    <input
+      type="checkbox"
+      name="flags.sds.initiativeAdv"
+      {{checked initiativeAdv}}
+    />
+  </div>
 
-    <button type="submit"><i class="far fa-save"></i> {{ localize "Submit"}}</button>
+  <button type="submit"><i class="far fa-save"></i>
+    {{localize "Submit"}}</button>
 </form>

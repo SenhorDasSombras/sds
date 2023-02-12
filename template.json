@@ -350,13 +350,18 @@
             "save": "",
             "skill": ""
           },
-          "spell":  {
+          "spell": {
             "dc": ""
           }
         }
       }
     },
-    "htmlFields": ["details.biography.value", "details.biography.public", "description.full", "description.summary"],
+    "htmlFields": [
+      "details.biography.value",
+      "details.biography.public",
+      "description.full",
+      "description.summary"
+    ],
     "character": {
       "templates": ["common", "creature"],
       "attributes": {
@@ -504,8 +509,17 @@
           "value": ["poison", "psychic"]
         },
         "ci": {
-          "value": ["blinded", "charmed", "deafened", "frightened", "paralyzed", "petrified", "poisoned", "stunned",
-            "unconscious"]
+          "value": [
+            "blinded",
+            "charmed",
+            "deafened",
+            "frightened",
+            "paralyzed",
+            "petrified",
+            "poisoned",
+            "stunned",
+            "unconscious"
+          ]
         }
       },
       "cargo": {
@@ -536,7 +550,19 @@
     }
   },
   "Item": {
-    "types": ["weapon", "equipment", "consumable", "tool", "loot", "background", "class", "subclass", "spell", "feat", "backpack"],
+    "types": [
+      "weapon",
+      "equipment",
+      "consumable",
+      "tool",
+      "loot",
+      "background",
+      "class",
+      "subclass",
+      "spell",
+      "feat",
+      "backpack"
+    ],
     "templates": {
       "itemDescription": {
         "description": {
@@ -624,7 +650,11 @@
         }
       }
     },
-    "htmlFields": ["description.value", "description.chat", "description.unidentified"],
+    "htmlFields": [
+      "description.value",
+      "description.chat",
+      "description.unidentified"
+    ],
     "background": {
       "templates": ["itemDescription"],
       "advancement": []
@@ -663,14 +693,25 @@
       }
     },
     "consumable": {
-      "templates": ["itemDescription", "physicalItem", "activatedEffect", "action"],
+      "templates": [
+        "itemDescription",
+        "physicalItem",
+        "activatedEffect",
+        "action"
+      ],
       "consumableType": "potion",
       "uses": {
         "autoDestroy": false
       }
     },
     "equipment": {
-      "templates": ["itemDescription", "physicalItem", "activatedEffect", "action", "mountable"],
+      "templates": [
+        "itemDescription",
+        "physicalItem",
+        "activatedEffect",
+        "action",
+        "mountable"
+      ],
       "armor": {
         "type": "light",
         "value": null,
@@ -713,6 +754,8 @@
       "templates": ["itemDescription", "activatedEffect", "action"],
       "level": 1,
       "school": "",
+      "element": "",
+      "mana": 0,
       "components": {
         "vocal": false,
         "somatic": false,
@@ -746,7 +789,13 @@
       }
     },
     "weapon": {
-      "templates": ["itemDescription", "physicalItem" ,"activatedEffect", "action", "mountable"],
+      "templates": [
+        "itemDescription",
+        "physicalItem",
+        "activatedEffect",
+        "action",
+        "mountable"
+      ],
       "weaponType": "simpleM",
       "baseItem": "",
       "properties": {},
@@ -755,7 +804,13 @@
   },
   "JournalEntryPage": {
     "types": ["class"],
-    "htmlFields": ["description.value", "description.additionalHitPoints", "description.additionalTraits", "description.additionalEquipment", "description.subclass"],
+    "htmlFields": [
+      "description.value",
+      "description.additionalHitPoints",
+      "description.additionalTraits",
+      "description.additionalEquipment",
+      "description.subclass"
+    ],
     "class": {
       "item": "",
       "description": {
