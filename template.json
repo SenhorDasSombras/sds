@@ -776,7 +776,9 @@
       "scaling": {
         "mode": "none",
         "formula": null
-      }
+      },
+      "tags": [],
+      "classes": []
     },
     "subclass": {
       "templates": ["itemDescription"],

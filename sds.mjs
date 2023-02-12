@@ -23299,6 +23299,24 @@ class SpellData extends SystemDataModel.mixin(
         },
         { label: "SdS.LevelScaling" }
       ),
+      tags: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellTags",
+        }
+      ),
+      classes: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellClasses",
+        }
+      ),
     });
   }
 
