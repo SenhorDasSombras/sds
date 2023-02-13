@@ -139,6 +139,28 @@
                            placeholder="{{ localize 'SdS.ScalingFormula' }}" data-formula-editor/>
                 </div>
             </div>
+
+            {{!-- Misc Information --}}
+            <h3 class="form-header">{{ localize "SdS.SpellMisc" }}</h3>
+
+            <div class="form-group">
+                <label>
+                    {{ localize "SdS.SpellTags" }}
+                    {{#if editable}}
+                    <a class="trait-selector spell-tags" data-target="system.tags" data-options="tags">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {{/if}}
+                </label>
+                <div class="form-fields">
+                    <ul class="traits-list">
+                        {{#each system.tags}}
+                            <li class="tag {{this}}">{{lookup (lookup ../config.spell_tags this) "label"}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+
         </div>
 
         {{!-- Effects Tab --}}

@@ -2851,6 +2851,38 @@ patchConfig("skills", "label", { since: 2.0, until: 2.2 });
 /* -------------------------------------------- */
 
 /**
+ * Tag of a spell
+ *
+ * @typedef {object} SpellTag
+ * @property {string} label    Localized label.
+ */
+
+/**
+ * The set of skill which can be trained with their default ability scores.
+ * @enum {SpellTag}
+ */
+SdS.spell_tags = {
+  area: { label: "SdS.SpellTagArea" },
+  buff: { label: "SdS.SpellTagBuff" },
+  cc: { label: "SdS.SpellTagCC" },
+  dmg: { label: "SdS.SpellTagDamage" },
+  debuff: { label: "SdS.SpellTagDebuff" },
+  def: { label: "SdS.SpellTagDef" },
+  detec: { label: "SdS.SpellTagDetection" },
+  dist: { label: "SdS.SpellTagDist" },
+  explo: { label: "SdS.SpellTagExploration" },
+  heal: { label: "SdS.SpellTagHeal" },
+  melee: { label: "SdS.SpellTagMelee" },
+  social: { label: "SdS.SpellTagSocial" },
+  touch: { label: "SdS.SpellTagTouch" },
+  util: { label: "SdS.SpellTagUtilities" },
+  weapon: { label: "SdS.SpellTagWeapon" },
+}
+preLocalize("spell_tags", { key: "label", sort: true });
+
+/* -------------------------------------------- */
+
+/**
  * Character alignment options.
  * @enum {string}
  */
@@ -18821,6 +18853,11 @@ class ItemSheet5e extends ItemSheet {
           )
         );
         options.maximum = skills.number;
+        options.labelKey = "label";
+        break;
+      case "tags":
+        options.choices = CONFIG.SdS.spell_tags;
+        options.valueKey = null;
         options.labelKey = "label";
         break;
     }
