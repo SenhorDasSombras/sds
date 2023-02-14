@@ -753,8 +753,8 @@
     "spell": {
       "templates": ["itemDescription", "activatedEffect", "action"],
       "level": 1,
-      "school": "",
-      "element": "",
+      "schools": [],
+      "elements": [],
       "mana": 0,
       "components": {
         "vocal": false,

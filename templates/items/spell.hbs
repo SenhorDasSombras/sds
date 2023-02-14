@@ -59,18 +59,40 @@
 
             {{!-- Spell School --}}
             <div class="form-group">
-                <label>{{ localize "SdS.SpellSchool" }}</label>
-                <select name="system.school">
-                    {{selectOptions config.spellSchools selected=system.school blank=""}}
-                </select>
+                <label>
+                    {{ localize "SdS.SpellSchool" }}
+                    {{#if editable}}
+                    <a class="trait-selector spell-schools" data-target="system.schools" data-options="schools">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {{/if}}
+                </label>
+                <div class="form-fields">
+                    <ul class="traits-list">
+                        {{#each system.schools}}
+                            <li class="tag {{this}}">{{lookup ../config.spellSchools this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
             </div>
 
             {{#if isElemental}}
             <div class="form-group">
-                <label>{{ localize "SdS.SpellElement" }}</label>
-                <select name="system.element">
-                    {{selectOptions config.spellElements selected=system.element blank=""}}
-                </select>
+                <label>
+                    {{ localize "SdS.SpellElement" }}
+                    {{#if editable}}
+                    <a class="trait-selector spell-elements" data-target="system.elements" data-options="elements">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {{/if}}
+                </label>
+                <div class="form-fields">
+                    <ul class="traits-list">
+                        {{#each system.elements}}
+                            <li class="tag {{this}}">{{lookup ../config.spellElements this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
             </div>
             {{/if}}
 

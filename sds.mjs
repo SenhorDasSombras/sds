@@ -6608,8 +6608,8 @@ class Item5e extends Item {
     const attributes = { ...CONFIG.SdS.spellComponents, ...tags };
     this.system.preparation.mode ||= "prepared";
     this.labels.level = CONFIG.SdS.spellLevels[this.system.level];
-    this.labels.school = CONFIG.SdS.spellSchools[this.system.school];
-    this.labels.element = CONFIG.SdS.spellElements[this.system.element];
+    this.labels.schools = this.system.schools;
+    this.labels.elements = this.system.elements;
     this.labels.mana = this.system.mana;
     this.labels.components = Object.entries(this.system.components).reduce(
       (obj, [c, active]) => {
@@ -18137,7 +18137,7 @@ class ItemSheet5e extends ItemSheet {
 
       // Spell
       isSpell: this.item.type == "spell",
-      isElemental: item.system.school == "elem",
+      isElemental: Boolean(item.system.schools?.includes("elem")),
 
       // Armor Class
       isArmor: item.isArmor,
@@ -18427,8 +18427,8 @@ class ItemSheet5e extends ItemSheet {
         break;
       case "spell":
         props.push(
-          labels.school,
-          labels.element,
+          ...labels.schools.map((v) => SdS.spellSchools[v]),
+          ...labels.elements.map((v) => SdS.spellElements[v]),
           labels.components.vsm,
           labels.materials,
           ...labels.components.tags,
@@ -18859,6 +18859,14 @@ class ItemSheet5e extends ItemSheet {
         options.choices = CONFIG.SdS.spell_tags;
         options.valueKey = null;
         options.labelKey = "label";
+        break;
+      case "schools":
+        options.choices = CONFIG.SdS.spellSchools;
+        options.valueKey = null;
+        break;
+      case "elements":
+        options.choices = CONFIG.SdS.spellElements;
+        options.valueKey = null;
         break;
     }
     new TraitSelector(this.item, options).render(true);
@@ -23259,14 +23267,24 @@ class SpellData extends SystemDataModel.mixin(
         min: 0,
         label: "SdS.SpellLevel",
       }),
-      school: new foundry.data.fields.StringField({
-        required: true,
-        label: "SdS.SpellSchool",
-      }),
-      element: new foundry.data.fields.StringField({
-        required: false,
-        label: "SdS.SpellElement",
-      }),
+      schools: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellSchool",
+        }
+      ),
+      elements: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellElements",
+        }
+      ),
       components: new MappingField(new foundry.data.fields.BooleanField(), {
         required: true,
         label: "SdS.SpellComponents",
