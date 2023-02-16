@@ -372,6 +372,13 @@
             "overall": ""
           }
         },
+        "mana": {
+          "value": 0,
+          "bonuses": {
+            "level": "",
+            "overall": ""
+          }
+        },
         "death": {
           "success": 0,
           "failure": 0

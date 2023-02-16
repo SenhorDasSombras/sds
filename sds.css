@@ -650,7 +650,9 @@ h5 {
 .sds.actor-armor-config .ac-field input,
 .sds.actor-hit-points-config .ac-field input,
 .sds.actor-armor-config .hp-field input,
-.sds.actor-hit-points-config .hp-field input {
+.sds.actor-hit-points-config .hp-field input,
+.sds.actor-armor-config .mana-field input,
+.sds.actor-mana-points-config .mana-field input {
   font-size: 3em;
   text-align: center;
 }

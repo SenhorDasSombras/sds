@@ -9412,6 +9412,122 @@ class ActorHitPointsConfig extends BaseConfigSheet {
 }
 
 /**
+ * A form for configuring actor mana points and bonuses.
+ */
+class ActorManaPointsConfig extends BaseConfigSheet {
+  constructor(...args) {
+    super(...args);
+
+    /**
+     * Cloned copy of the actor for previewing changes.
+     * @type {Actor5e}
+     */
+    this.clone = this.object.clone();
+  }
+
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["sds", "actor-mana-points-config"],
+      template: "systems/sds/templates/apps/mana-points-config.hbs",
+      width: 320,
+      height: "auto",
+      sheetConfig: false,
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get title() {
+    return `${game.i18n.localize("SdS.ManaPointsConfig")}: ${
+      this.document.name
+    }`;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  getData(options) {
+    return {
+      mana: this.clone.system.attributes.mana,
+      source: this.clone.toObject().system.attributes.mana,
+      isCharacter: this.document.type === "character",
+    };
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _getActorOverrides() {
+    return Object.keys(
+      foundry.utils.flattenObject(
+        this.object.overrides?.system?.attributes || {}
+      )
+    );
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  async _updateObject(event, formData) {
+    const mana = foundry.utils.expandObject(formData).mana;
+    this.clone.updateSource({ "system.attributes.mana": mana });
+    const maxDelta =
+      this.clone.system.attributes.mana.max -
+      this.document.system.attributes.mana.max;
+    mana.value = Math.max(this.document.system.attributes.mana.value + maxDelta, 0);
+    return this.document.update({ "system.attributes.mana": mana });
+  }
+
+  /* -------------------------------------------- */
+  /*  Event Listeners and Handlers                */
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  activateListeners(html) {
+    super.activateListeners(html);
+    html.find(".roll-mana-points").click(this._onRollManaFormula.bind(this));
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  async _onChangeInput(event) {
+    await super._onChangeInput(event);
+    const t = event.currentTarget;
+
+    // Update clone with new data & re-render
+    this.clone.updateSource({
+      [`system.attributes.${t.name}`]: t.value || null,
+    });
+    if (t.name !== "mana.formula") this.render();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle rolling NPC mana values using the provided formula.
+   * @param {Event} event  The original click event.
+   * @protected
+   */
+  async _onRollManaFormula(event) {
+    event.preventDefault();
+    try {
+      const roll = await this.clone.rollNPCHitPoints();
+      this.clone.updateSource({ "system.attributes.mana.max": roll.total });
+      this.render();
+    } catch (error) {
+      ui.notifications.error(game.i18n.localize("SdS.HPFormulaError"));
+      throw error;
+    }
+  }
+}
+
+/**
  * A simple sub-application of the ActorSheet which is used to configure properties related to initiative.
  */
 class ActorInitiativeConfig extends BaseConfigSheet {
@@ -15491,6 +15607,9 @@ class ActorSheet5e extends ActorSheet {
       case "hit-points":
         app = new ActorHitPointsConfig(this.actor);
         break;
+      case "mana-points":
+        app = new ActorManaPointsConfig(this.actor);
+        break;
       case "initiative":
         app = new ActorInitiativeConfig(this.actor);
         break;
@@ -21096,6 +21215,46 @@ class CharacterData extends CreatureTemplate {
             },
             { label: "SdS.HitPoints" }
           ),
+          mana: new foundry.data.fields.SchemaField(
+            {
+              value: new foundry.data.fields.NumberField({
+                nullable: false,
+                integer: true,
+                min: 0,
+                initial: 0,
+                label: "SdS.ManaPointsCurrent",
+              }),
+              max: new foundry.data.fields.NumberField({
+                nullable: true,
+                integer: true,
+                min: 0,
+                initial: null,
+                label: "SdS.ManaPointsOverride",
+              }),
+              temp: new foundry.data.fields.NumberField({
+                integer: true,
+                initial: 0,
+                min: 0,
+                label: "SdS.ManaPointsTemp",
+              }),
+              tempmax: new foundry.data.fields.NumberField({
+                integer: true,
+                initial: 0,
+                label: "SdS.ManaPointsTempMax",
+              }),
+              bonuses: new foundry.data.fields.SchemaField({
+                level: new FormulaField({
+                  deterministic: true,
+                  label: "SdS.ManaPointsBonusLevel",
+                }),
+                overall: new FormulaField({
+                  deterministic: true,
+                  label: "SdS.ManaPointsBonusOverall",
+                }),
+              }),
+            },
+            { label: "SdS.Mana" }
+          ),
           death: new foundry.data.fields.SchemaField(
             {
               success: new foundry.data.fields.NumberField({
@@ -22148,6 +22307,22 @@ class ClassData extends SystemDataModel.mixin(ItemDescriptionTemplate) {
         initial: 0,
         min: 0,
         label: "SdS.HitDiceUsed",
+      }),
+      mana: new foundry.data.fields.NumberField({
+        required: true,
+        nullable: false,
+        integer: true,
+        min: 0,
+        initial: 0,
+        label: "SdS.Mana",
+      }),
+      mana_percentage: new foundry.data.fields.NumberField({
+        required: true,
+        nullable: false,
+        integer: false,
+        min: 0,
+        initial: 1,
+        label: "SdS.ManaPercentage",
       }),
       advancement: new foundry.data.fields.ArrayField(new AdvancementField(), {
         label: "SdS.AdvancementTitle",
