@@ -56,10 +56,9 @@
                     <a class="config-button" data-action="hit-points" data-tooltip="SdS.HitPointsConfig">
                         <i class="fas fa-cog"></i>
                     </a>
-                    <div class="attribute-value multiple">
+                    <div class="attribute-value multiple column">
                         <input name="system.attributes.hp.value" type="text" value="{{hp.value}}" placeholder="10"
                             data-tooltip="SdS.HitPointsCurrent" data-dtype="Number">
-                        <span class="sep"> / </span>
                         <span data-tooltip="{{#if hp.max}}SdS.HitPointsOverride{{else}}SdS.HitPointsMax{{/if}}">
                             {{hp.max}}
                         </span>
@@ -79,10 +78,9 @@
                     <a class="config-button" data-action="mana-points" data-tooltip="SdS.ManaPointsConfig">
                         <i class="fas fa-cog"></i>
                     </a>
-                    <div class="attribute-value multiple">
+                    <div class="attribute-value multiple column">
                         <input name="system.attributes.mana.value" type="text" value="{{mana.value}}" placeholder="10"
                             data-tooltip="SdS.ManaPointsCurrent" data-dtype="Number">
-                        <span class="sep"> / </span>
                         <span data-tooltip="{{#if mana.max}}SdS.ManaPointsOverride{{else}}SdS.ManaPointsMax{{/if}}">
                             {{mana.max}}
                         </span>

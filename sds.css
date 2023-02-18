@@ -804,7 +804,7 @@ h5 {
 }
 .sds.sheet.actor .sheet-header .attributes .attribute {
   position: relative;
-  height: 70px;
+  height: 110px;
   margin: 0;
   border: none;
   border-right: 2px groove #eeede0;
@@ -817,7 +817,7 @@ h5 {
   position: relative;
 }
 .sds.sheet.actor .sheet-header .attributes .attribute .attribute-value {
-  height: 30px;
+  //height: 30px;
   line-height: 30px;
 }
 .sds.sheet.actor .sheet-header .attributes .attribute .config-button {
@@ -871,12 +871,13 @@ h5 {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 28px;
+  //height: 28px;
   line-height: 28px;
   font-family: "Modesto Condensed", "Palatino Linotype", serif;
   font-size: 20px;
   font-weight: 700;
 }
+
 .sds.sheet.actor ul.attributes li.attribute .attribute-value > * {
   font-weight: 400;
   font-size: 24px;
@@ -888,6 +889,17 @@ h5 {
   .attribute-value.multiple
   span:not(.sep) {
   flex: 0 0 33%;
+}
+.sds.sheet.actor ul.attributes li.attribute .attribute-value.multiple.column {
+  flex-direction: column;
+}
+.sds.sheet.actor
+  ul.attributes
+  li.attribute
+  .attribute-value.multiple.column
+  span:not(.sep) {
+  padding-top: 2px;
+  border-top: 2px solid #7a7971;
 }
 .sds.sheet.actor ul.attributes li.attribute .attribute-footer {
   flex: 0 0 18px;
@@ -1960,7 +1972,7 @@ h5 {
 /* ----------------------------------------- */
 .sds.sheet.actor.character {
   min-width: 720px;
-  min-height: 680px;
+  min-height: 730px;
   /* ----------------------------------------- */
   /*  Sheet Header                             */
   /* ----------------------------------------- */
