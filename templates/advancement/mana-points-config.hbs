@@ -2,7 +2,10 @@
     {{> "sds.advancement-controls"}}
     <div class="form-group">
         <label>{{localize "SdS.Mana"}}</label>
-        <input type="number" name="mana.max" value="{{source.max}}"
-        placeholder="{{mana.max}}">
+        <span class="form-field-readonly">{{mana}}</span>
+    </div>
+    <div class="form-group">
+        <label>{{localize "SdS.ManaPercentage"}}</label>
+        <span class="form-field-readonly">{{mana_percentage}}</span>
     </div>
 </form>

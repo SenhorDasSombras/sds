@@ -1102,11 +1102,9 @@ class ManaPointsConfig extends AdvancementConfig {
 
   /** @inheritdoc */
   getData() {
-    console.log('Hi')
-    console.log(this)
-    console.log(this.advancement.item)
     return foundry.utils.mergeObject(super.getData(), {
       mana: this.advancement.mana,
+      mana_percentage: this.advancement.mana_percentage,
     });
   }
 }
@@ -1879,13 +1877,19 @@ class ManaPointsAdvancement extends Advancement$1 {
   /* -------------------------------------------- */
 
   /**
-   * Short cut to the mana multiplier used by the class.
+   * Shortcut to the mana used by the class.
    * @returns {string}
    */
   get mana() {
-    console.log('mana')
-    console.log(this.item)
-    return this.item.actor.system.attributes.mana;
+    return this.item.system.mana;
+  }
+
+  /**
+   * Shortcut to the mana multiplier used by the class.
+   * @returns {string}
+   */
+  get mana_percentage() {
+    return this.item.system.mana_percentage;
   }
 
   /* -------------------------------------------- */

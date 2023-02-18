@@ -686,6 +686,8 @@
       "identifier": "",
       "levels": 1,
       "hitDice": "d6",
+      "mana": 500,
+      "mana_percentage": 1,
       "hitDiceUsed": 0,
       "advancement": [],
       "saves": [],
