@@ -830,9 +830,11 @@ h5 {
 .sds.sheet.actor .sheet-header .attributes .attribute:hover .config-button {
   display: block;
 }
-.sds.sheet.actor .sheet-header .attributes .attribute input.temphp {
+.sds.sheet.actor .sheet-header .attributes .attribute input.temphp,
+.sds.sheet.actor .sheet-header .attributes .attribute input.tempmana {
   width: 48%;
 }
+
 .sds.sheet.actor h4.box-title {
   height: 18px;
   line-height: 16px;

@@ -1088,6 +1088,30 @@ class HitPointsConfig extends AdvancementConfig {
 }
 
 /**
+ * Configuration application for mana points.
+ */
+class ManaPointsConfig extends AdvancementConfig {
+  /** @inheritdoc */
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      template: "systems/sds/templates/advancement/mana-points-config.hbs",
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  getData() {
+    console.log('Hi')
+    console.log(this)
+    console.log(this.advancement.item)
+    return foundry.utils.mergeObject(super.getData(), {
+      mana: this.advancement.mana,
+    });
+  }
+}
+
+/**
  * Inline application that presents hit points selection upon level up.
  */
 class HitPointsFlow extends AdvancementFlow {
@@ -1095,6 +1119,96 @@ class HitPointsFlow extends AdvancementFlow {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template: "systems/sds/templates/advancement/hit-points-flow.hbs",
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  getData() {
+    const source = this.retainedData ?? this.advancement.value;
+    const value = source[this.level];
+
+    // If value is empty, `useAverage` should default to the value selected at the previous level
+    let useAverage = value === "avg";
+    if (!value) {
+      const lastValue = source[this.level - 1];
+      if (lastValue === "avg") useAverage = true;
+    }
+
+    return foundry.utils.mergeObject(super.getData(), {
+      isFirstClassLevel:
+        this.level === 1 && this.advancement.item.isOriginalClass,
+      hitDie: this.advancement.hitDie,
+      dieValue: this.advancement.hitDieValue,
+      data: {
+        value: Number.isInteger(value) ? value : "",
+        useAverage,
+      },
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  activateListeners(html) {
+    this.form
+      .querySelector(".averageCheckbox")
+      ?.addEventListener("change", (event) => {
+        this.form.querySelector(".rollResult").disabled = event.target.checked;
+        this.form.querySelector(".rollButton").disabled = event.target.checked;
+        this._updateRollResult();
+      });
+    this.form
+      .querySelector(".rollButton")
+      ?.addEventListener("click", async () => {
+        const roll = await this.advancement.actor.rollClassHitPoints(
+          this.advancement.item
+        );
+        this.form.querySelector(".rollResult").value = roll.total;
+      });
+    this._updateRollResult();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Update the roll result display when the average result is taken.
+   * @protected
+   */
+  _updateRollResult() {
+    if (!this.form.elements.useAverage?.checked) return;
+    this.form.elements.value.value = this.advancement.hitDieValue / 2 + 1;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _updateObject(event, formData) {
+    let value;
+    if (formData.useMax) value = "max";
+    else if (formData.useAverage) value = "avg";
+    else if (Number.isInteger(formData.value)) value = parseInt(formData.value);
+
+    if (value !== undefined)
+      return this.advancement.apply(this.level, { [this.level]: value });
+
+    this.form.querySelector(".rollResult")?.classList.add("error");
+    const errorType = formData.value ? "Invalid" : "Empty";
+    throw new Advancement.ERROR(
+      game.i18n.localize(`SdS.AdvancementHitPoints${errorType}Error`)
+    );
+  }
+}
+
+/**
+ * Inline application that presents mana points selection upon level up.
+ */
+class ManaPointsFlow extends AdvancementFlow {
+  /** @inheritdoc */
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      template: "systems/sds/templates/advancement/mana-points-flow.hbs",
     });
   }
 
@@ -1594,6 +1708,184 @@ class HitPointsAdvancement extends Advancement$1 {
    */
   get hitDieValue() {
     return Number(this.hitDie.substring(1));
+  }
+
+  /* -------------------------------------------- */
+  /*  Display Methods                             */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  configuredForLevel(level) {
+    return this.valueForLevel(level) !== null;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  titleForLevel(level, { configMode = false } = {}) {
+    const hp = this.valueForLevel(level);
+    if (!hp || configMode) return this.title;
+    return `${this.title}: <strong>${hp}</strong>`;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Hit points given at the provided level.
+   * @param {number} level   Level for which to get hit points.
+   * @returns {number|null}  Hit points for level or null if none have been taken.
+   */
+  valueForLevel(level) {
+    return this.constructor.valueForLevel(this.value, this.hitDieValue, level);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Hit points given at the provided level.
+   * @param {object} data         Contents of `value` used to determine this value.
+   * @param {number} hitDieValue  Face value of the hit die used by this advancement.
+   * @param {number} level        Level for which to get hit points.
+   * @returns {number|null}       Hit points for level or null if none have been taken.
+   */
+  static valueForLevel(data, hitDieValue, level) {
+    const value = data[level];
+    if (!value) return null;
+
+    if (value === "max") return hitDieValue;
+    if (value === "avg") return hitDieValue / 2 + 1;
+    return value;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Total hit points provided by this advancement.
+   * @returns {number}  Hit points currently selected.
+   */
+  total() {
+    return Object.keys(this.value).reduce(
+      (total, level) => total + this.valueForLevel(parseInt(level)),
+      0
+    );
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Total hit points taking the provided ability modifier into account, with a minimum of 1 per level.
+   * @param {number} mod  Modifier to add per level.
+   * @returns {number}    Total hit points plus modifier.
+   */
+  getAdjustedTotal(mod) {
+    return Object.keys(this.value).reduce((total, level) => {
+      return total + Math.max(this.valueForLevel(parseInt(level)) + mod, 1);
+    }, 0);
+  }
+
+  /* -------------------------------------------- */
+  /*  Editing Methods                             */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static availableForItem(item) {
+    return !item.advancement.byType.HitPoints?.length;
+  }
+
+  /* -------------------------------------------- */
+  /*  Application Methods                         */
+  /* -------------------------------------------- */
+
+  /**
+   * Add the ability modifier and any bonuses to the provided hit points value to get the number to apply.
+   * @param {number} value  Hit points taken at a given level.
+   * @returns {number}      Hit points adjusted with ability modifier and per-level bonuses.
+   */
+  #getApplicableValue(value) {
+    const abilityId = CONFIG.SdS.hitPointsAbility || "con";
+    value = Math.max(
+      value + (this.actor.system.abilities[abilityId]?.mod ?? 0),
+      1
+    );
+    value += simplifyBonus(
+      this.actor.system.attributes.hp.bonuses.level,
+      this.actor.getRollData()
+    );
+    return value;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  apply(level, data) {
+    let value = this.constructor.valueForLevel(data, this.hitDieValue, level);
+    if (value === undefined) return;
+    this.actor.updateSource({
+      "system.attributes.hp.value":
+        this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
+    });
+    this.updateSource({ value: data });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  restore(level, data) {
+    this.apply(level, data);
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  reverse(level) {
+    let value = this.valueForLevel(level);
+    if (value === undefined) return;
+    this.actor.updateSource({
+      "system.attributes.hp.value":
+        this.actor.system.attributes.hp.value - this.#getApplicableValue(value),
+    });
+    const source = { [level]: this.value[level] };
+    this.updateSource({ [`value.-=${level}`]: null });
+    return source;
+  }
+}
+
+class ManaPointsAdvancement extends Advancement$1 {
+  /** @inheritdoc */
+  static get metadata() {
+    return foundry.utils.mergeObject(super.metadata, {
+      order: 10,
+      icon: "systems/sds/icons/svg/hit-points.svg",
+      title: game.i18n.localize("SdS.AdvancementManaPointsTitle"),
+      hint: game.i18n.localize("SdS.AdvancementManaPointsHint"),
+      multiLevel: true,
+      validItemTypes: new Set(["class"]),
+      apps: {
+        config: ManaPointsConfig,
+        flow: ManaPointsFlow,
+      },
+    });
+  }
+
+  /* -------------------------------------------- */
+  /*  Instance Properties                         */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get levels() {
+    return Array.fromRange(CONFIG.SdS.maxLevel + 1).slice(1);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Short cut to the mana multiplier used by the class.
+   * @returns {string}
+   */
+  get mana() {
+    console.log('mana')
+    console.log(this.item)
+    return this.item.actor.system.attributes.mana;
   }
 
   /* -------------------------------------------- */
@@ -4500,6 +4792,7 @@ SdS.allowedActorFlags = ["isPolymorphed", "originalActor"].concat(
  */
 SdS.advancementTypes = {
   HitPoints: HitPointsAdvancement,
+  ManaPoints: ManaPointsAdvancement,
   ItemGrant: ItemGrantAdvancement,
   ScaleValue: ScaleValueAdvancement,
 };
@@ -9309,6 +9602,7 @@ class ActorHitPointsConfig extends BaseConfigSheet {
      */
     this.clone = this.object.clone();
   }
+
 
   /* -------------------------------------------- */
 
@@ -14705,6 +14999,12 @@ class ActorSheet5e extends ActorSheet {
     if (hp.temp === 0) delete hp.temp;
     if (hp.tempmax === 0) delete hp.tempmax;
     context.hp = hp;
+
+    // Temporary MP
+    const mana = { ...context.system.attributes.mana };
+    if (mana.temp === 0) delete mana.temp;
+    if (mana.tempmax === 0) delete mana.tempmax;
+    context.mana = mana;
 
     // Ability Scores
     for (const [a, abl] of Object.entries(context.abilities)) {

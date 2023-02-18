@@ -1,0 +1,37 @@
+<form>
+  {{#if isCharacter}}
+
+    <div class="mana-field form-group">
+      <input type="number" name="mana.max" value="{{source.max}}"
+        placeholder="{{mana.max}}" data-tooltip="SdS.ManaPointsOverride">
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "SdS.ManaPointsBonusLevel"}}</label>
+      <input type="text" name="mana.bonuses.level" value="{{mana.bonuses.level}}">
+    </div>
+    <div class="form-group">
+      <label>{{localize "SdS.ManaPointsBonusOverall"}}</label>
+      <input type="text" name="mana.bonuses.overall" value="{{mana.bonuses.overall}}">
+    </div>
+
+  {{else}}
+
+    <div class="mana-field form-group">
+      <input type="number" name="mana.max" value="{{mana.max}}" data-tooltip="SdS.ManaPointsMax">
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "SdS.ManaFormula"}}</label>
+      <div class="form-fields">
+        <input type="text" name="hp.formula" value="{{mana.formula}}">
+        <button class="roll-mana-points"><i class="fas fa-dice"></i> {{localize "SdS.Roll"}}</button>
+      </div>
+    </div>
+
+  {{/if}}
+
+  <button type="submit">
+    <i class="far fa-save"></i> {{localize "Save"}}
+  </button>
+</form>
