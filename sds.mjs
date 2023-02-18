@@ -1853,7 +1853,7 @@ class ManaPointsAdvancement extends Advancement$1 {
   static get metadata() {
     return foundry.utils.mergeObject(super.metadata, {
       order: 10,
-      icon: "systems/sds/icons/svg/hit-points.svg",
+      icon: "systems/sds/icons/svg/mana-points.svg",
       title: game.i18n.localize("SdS.AdvancementManaPointsTitle"),
       hint: game.i18n.localize("SdS.AdvancementManaPointsHint"),
       multiLevel: true,
