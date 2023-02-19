@@ -134,6 +134,7 @@
   "SdS.AdvancementHitPointsRollButton": "Roll {die}",
   "SdS.AdvancementManaPointsTitle": "Mana Points",
   "SdS.AdvancementManaPointsHint": "Track the player's mana points for each level in the class.",
+  "SdS.AdvancementManaPoints": "The base mana for your level is <strong>{mana}</strong>. Your multiplier is <strong>{mana_percentage}</strong>. You'll have <strong>{total_mana}</strong> MP.",
   "SdS.AdvancementItemGrantTitle": "Grant Items",
   "SdS.AdvancementItemGrantHint": "Grant the character items (such as equipment, features, or spells) when they reach a certain level.",
   "SdS.AdvancementItemGrantDropHint": "Drop Items here to add them to the list granted by this advancement.",

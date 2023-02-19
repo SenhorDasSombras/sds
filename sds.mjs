@@ -1103,7 +1103,6 @@ class ManaPointsConfig extends AdvancementConfig {
   /** @inheritdoc */
   getData() {
     return foundry.utils.mergeObject(super.getData(), {
-      mana: this.advancement.mana,
       mana_percentage: this.advancement.mana_percentage,
     });
   }
@@ -1214,75 +1213,28 @@ class ManaPointsFlow extends AdvancementFlow {
 
   /** @inheritdoc */
   getData() {
-    const source = this.retainedData ?? this.advancement.value;
-    const value = source[this.level];
-
-    // If value is empty, `useAverage` should default to the value selected at the previous level
-    let useAverage = value === "avg";
-    if (!value) {
-      const lastValue = source[this.level - 1];
-      if (lastValue === "avg") useAverage = true;
-    }
+    const mana = SdS.MANA_PER_LEVEL[this.level];
+    const mana_percentage = this.advancement.mana_percentage;
+    const total_mana = mana * mana_percentage;
 
     return foundry.utils.mergeObject(super.getData(), {
-      isFirstClassLevel:
-        this.level === 1 && this.advancement.item.isOriginalClass,
-      hitDie: this.advancement.hitDie,
-      dieValue: this.advancement.hitDieValue,
-      data: {
-        value: Number.isInteger(value) ? value : "",
-        useAverage,
-      },
+      mana: mana,
+      mana_percentage: mana_percentage,
+      total_mana: total_mana,
     });
   }
 
   /* -------------------------------------------- */
 
   /** @inheritdoc */
-  activateListeners(html) {
-    this.form
-      .querySelector(".averageCheckbox")
-      ?.addEventListener("change", (event) => {
-        this.form.querySelector(".rollResult").disabled = event.target.checked;
-        this.form.querySelector(".rollButton").disabled = event.target.checked;
-        this._updateRollResult();
-      });
-    this.form
-      .querySelector(".rollButton")
-      ?.addEventListener("click", async () => {
-        const roll = await this.advancement.actor.rollClassHitPoints(
-          this.advancement.item
-        );
-        this.form.querySelector(".rollResult").value = roll.total;
-      });
-    this._updateRollResult();
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Update the roll result display when the average result is taken.
-   * @protected
-   */
-  _updateRollResult() {
-    if (!this.form.elements.useAverage?.checked) return;
-    this.form.elements.value.value = this.advancement.hitDieValue / 2 + 1;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
   _updateObject(event, formData) {
-    let value;
-    if (formData.useMax) value = "max";
-    else if (formData.useAverage) value = "avg";
-    else if (Number.isInteger(formData.value)) value = parseInt(formData.value);
+    let value = parseInt(formData.mana);
 
     if (value !== undefined)
       return this.advancement.apply(this.level, { [this.level]: value });
 
     this.form.querySelector(".rollResult")?.classList.add("error");
-    const errorType = formData.value ? "Invalid" : "Empty";
+    const errorType = formData.mana ? "Invalid" : "Empty";
     throw new Advancement.ERROR(
       game.i18n.localize(`SdS.AdvancementHitPoints${errorType}Error`)
     );
@@ -1820,7 +1772,11 @@ class HitPointsAdvancement extends Advancement$1 {
     if (value === undefined) return;
     this.actor.updateSource({
       "system.attributes.hp.value":
-        this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
+      this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
+    });
+    this.actor.updateSource({
+      "system.attributes.hp.max":
+      this.actor.system.attributes.hp.max + this.#getApplicableValue(value),
     });
     this.updateSource({ value: data });
   }
@@ -1841,6 +1797,10 @@ class HitPointsAdvancement extends Advancement$1 {
     this.actor.updateSource({
       "system.attributes.hp.value":
         this.actor.system.attributes.hp.value - this.#getApplicableValue(value),
+    });
+    this.actor.updateSource({
+      "system.attributes.hp.max":
+      this.actor.system.attributes.hp.max - this.#getApplicableValue(value),
     });
     const source = { [level]: this.value[level] };
     this.updateSource({ [`value.-=${level}`]: null });
@@ -1877,14 +1837,6 @@ class ManaPointsAdvancement extends Advancement$1 {
   /* -------------------------------------------- */
 
   /**
-   * Shortcut to the mana used by the class.
-   * @returns {string}
-   */
-  get mana() {
-    return this.item.system.mana;
-  }
-
-  /**
    * Shortcut to the mana multiplier used by the class.
    * @returns {string}
    */
@@ -1912,39 +1864,21 @@ class ManaPointsAdvancement extends Advancement$1 {
 
   /* -------------------------------------------- */
 
-  /**
-   * Hit points given at the provided level.
-   * @param {number} level   Level for which to get hit points.
-   * @returns {number|null}  Hit points for level or null if none have been taken.
-   */
   valueForLevel(level) {
-    return this.constructor.valueForLevel(this.value, this.hitDieValue, level);
+    return this.constructor.valueForLevel(this.value, this.mana_percentage, level);
   }
 
   /* -------------------------------------------- */
 
-  /**
-   * Hit points given at the provided level.
-   * @param {object} data         Contents of `value` used to determine this value.
-   * @param {number} hitDieValue  Face value of the hit die used by this advancement.
-   * @param {number} level        Level for which to get hit points.
-   * @returns {number|null}       Hit points for level or null if none have been taken.
-   */
-  static valueForLevel(data, hitDieValue, level) {
+  static valueForLevel(data, percentage, level) {
     const value = data[level];
     if (!value) return null;
 
-    if (value === "max") return hitDieValue;
-    if (value === "avg") return hitDieValue / 2 + 1;
-    return value;
+    return value * percentage;
   }
 
   /* -------------------------------------------- */
 
-  /**
-   * Total hit points provided by this advancement.
-   * @returns {number}  Hit points currently selected.
-   */
   total() {
     return Object.keys(this.value).reduce(
       (total, level) => total + this.valueForLevel(parseInt(level)),
@@ -1984,13 +1918,8 @@ class ManaPointsAdvancement extends Advancement$1 {
    * @returns {number}      Hit points adjusted with ability modifier and per-level bonuses.
    */
   #getApplicableValue(value) {
-    const abilityId = CONFIG.SdS.hitPointsAbility || "con";
-    value = Math.max(
-      value + (this.actor.system.abilities[abilityId]?.mod ?? 0),
-      1
-    );
     value += simplifyBonus(
-      this.actor.system.attributes.hp.bonuses.level,
+      this.actor.system.attributes.mana.bonuses.level,
       this.actor.getRollData()
     );
     return value;
@@ -2000,11 +1929,15 @@ class ManaPointsAdvancement extends Advancement$1 {
 
   /** @inheritdoc */
   apply(level, data) {
-    let value = this.constructor.valueForLevel(data, this.hitDieValue, level);
+    let value = this.constructor.valueForLevel(data, this.mana_percentage, level);
     if (value === undefined) return;
     this.actor.updateSource({
-      "system.attributes.hp.value":
-        this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
+      "system.attributes.mana.value":
+       this.#getApplicableValue(value),
+    });
+    this.actor.updateSource({
+      "system.attributes.mana.max":
+       this.#getApplicableValue(value),
     });
     this.updateSource({ value: data });
   }
@@ -2023,8 +1956,12 @@ class ManaPointsAdvancement extends Advancement$1 {
     let value = this.valueForLevel(level);
     if (value === undefined) return;
     this.actor.updateSource({
-      "system.attributes.hp.value":
-        this.actor.system.attributes.hp.value - this.#getApplicableValue(value),
+      "system.attributes.mana.value":
+      this.actor.system.attributes.mana.value - this.#getApplicableValue(value),
+    });
+    this.actor.updateSource({
+      "system.attributes.mana.max":
+      this.actor.system.attributes.mana.max - this.#getApplicableValue(value),
     });
     const source = { [level]: this.value[level] };
     this.updateSource({ [`value.-=${level}`]: null });
@@ -4079,6 +4016,34 @@ SdS.SPELL_SLOT_TABLE = [
   [4, 3, 3, 3, 3, 2, 1, 1, 1],
   [4, 3, 3, 3, 3, 2, 2, 1, 1],
 ];
+
+/* -------------------------------------------- */
+
+/**
+ * Define the standard mana per level.
+ */
+SdS.MANA_PER_LEVEL = {
+  1: 500,
+  2: 800,
+  3: 1600,
+  4: 2000,
+  5: 4000,
+  6: 4800,
+  7: 9000,
+  8: 10_000,
+  9: 20_000,
+  10: 24_000,
+  11: 45_000,
+  12: 50_000,
+  13: 100_000,
+  14: 120_000,
+  15: 240_000,
+  16: 280_000,
+  17: 550_000,
+  18: 750_000,
+  19: 1_400_000,
+  20: 2_000_000
+};
 
 /* -------------------------------------------- */
 
