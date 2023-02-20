@@ -18525,7 +18525,8 @@ class ItemSheet5e extends ItemSheet {
 
       // Spell
       isSpell: this.item.type == "spell",
-      isElemental: Boolean(item.system.schools?.includes("elem")),
+      isElemental: Boolean(item.system.schools?.includes("elem") ||
+                           item.system.spell_schools?.includes("elem")),
 
       // Armor Class
       isArmor: item.isArmor,
@@ -22592,6 +22593,32 @@ class ClassData extends SystemDataModel.mixin(ItemDescriptionTemplate) {
         min: 0,
         initial: 1,
         label: "SdS.ManaPercentage",
+      }),
+      spell_schools: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellSchool",
+        }
+      ),
+      spell_elements: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField(),
+        {
+          required: true,
+          nullable: true,
+          initial: null,
+          label: "SdS.SpellElements",
+        }
+      ),
+      max_spell_level: new foundry.data.fields.NumberField({
+        required: true,
+        nullable: false,
+        integer: true,
+        min: 0,
+        initial: 0,
+        label: "Sds.SpellMaxLevel",
       }),
       advancement: new foundry.data.fields.ArrayField(new AdvancementField(), {
         label: "SdS.AdvancementTitle",

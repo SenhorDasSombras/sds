@@ -976,6 +976,7 @@
   "SdS.SpellMaterialsCost": "Material Cost",
   "SdS.SpellMaterialsDescription": "Material Description",
   "SdS.SpellMaterialsSupply": "Material Supply",
+  "SdS.SpellMaxLevel": "Max Spell Level",
   "SdS.SpellMisc": "Spell Misc Information",
   "SdS.SpellName": "Spell Name",
   "SdS.SpellNone": "None",

@@ -5,6 +5,52 @@
     </div>
 </div>
 
+{{!-- Spell School --}}
+<div class="form-group">
+    <label>
+        {{ localize "SdS.SpellSchool" }}
+        {{#if editable}}
+        <a class="trait-selector spell-schools" data-target="system.spell_schools" data-options="schools">
+            <i class="fas fa-edit"></i>
+        </a>
+        {{/if}}
+    </label>
+    <div class="form-fields">
+        <ul class="traits-list">
+            {{#each system.spell_schools}}
+                <li class="tag {{this}}">{{lookup ../config.spellSchools this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+</div>
+
+{{#if isElemental}}
+<div class="form-group">
+    <label>
+        {{ localize "SdS.SpellElement" }}
+        {{#if editable}}
+        <a class="trait-selector spell-elements" data-target="system.spell_elements" data-options="elements">
+            <i class="fas fa-edit"></i>
+        </a>
+        {{/if}}
+    </label>
+    <div class="form-fields">
+        <ul class="traits-list">
+            {{#each system.spell_elements}}
+                <li class="tag {{this}}">{{lookup ../config.spellElements this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+</div>
+{{/if}}
+
+<div class="form-group">
+    <label>{{localize "SdS.SpellMaxLevel"}}</label>
+    <div class="form-fields">
+        {{numberInput system.max_spell_level name="system.max_spell_level" placeholder="0"}}
+    </div>
+</div>
+
 <div class="form-group">
   <label>{{localize "SdS.SpellProgression"}}</label>
   <div class="form-fields">
