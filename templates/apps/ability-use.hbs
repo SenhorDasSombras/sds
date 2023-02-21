@@ -1,60 +1,73 @@
 <form id="ability-use-form">
-    <p>{{title}}</p>
-    <p class="notes">{{note}}</p>
-    {{#each errors}}
+  <p>{{title}}</p>
+  <p class="notes">{{note}}</p>
+  {{#each errors}}
     <p class="notification error">{{this}}</p>
-    {{/each}}
+  {{/each}}
 
-    {{#if consumeSpellSlot}}
+  {{#if consumeSpellSlot}}
     <div class="form-group">
-        <label>{{ localize "SdS.SpellCastUpcast" }}</label>
-        <div class="form-fields">
-            <select name="consumeSpellLevel">
-                {{#select item.system.level}}
-                {{#each spellLevels as |l|}}
-                <option value="{{l.level}}" {{disabled (not l.canCast)}}>{{l.label}}</option>
-                {{/each}}
-                {{/select}}
-            </select>
-        </div>
+      <label>{{localize "SdS.SpellCastUpcast"}}</label>
+      <div class="form-fields">
+        <select name="consumeSpellLevel">
+          {{#select item.system.level}}
+            {{#each spellLevels as |l|}}
+              <option value="{{l.level}}" {{disabled (not l.canCast)}}>
+                {{l.label}}
+              </option>
+            {{/each}}
+          {{/select}}
+        </select>
+      </div>
     </div>
 
     <div class="form-group">
-        <label class="checkbox">
-            <input type="checkbox" name="consumeSpellSlot" checked>{{localize "SdS.SpellCastConsume"}}
-        </label>
+      <label class="checkbox">
+        <input type="checkbox" name="consumeSpellSlot" checked />
+        {{localize "SdS.SpellCastConsume"}}
+      </label>
     </div>
-    {{/if}}
+  {{/if}}
 
-    {{#if consumeUses}}
+  {{#if consumeSpellMana}}
     <div class="form-group">
-        <label class="checkbox">
-            <input type="checkbox" name="consumeUsage" checked>{{localize "SdS.AbilityUseConsume"}}
-        </label>
+      <!--TODO: mana consume enhancement form will be here (spend more mana to modify spell casting) -->
     </div>
-    {{/if}}
+  {{/if}}
 
-    {{#if consumeResource}}
+  {{#if consumeUses}}
     <div class="form-group">
-        <label class="checkbox">
-            <input type="checkbox" name="consumeResource" checked>{{localize "SdS.ConsumeResource"}}
-        </label>
+      <label class="checkbox">
+        <input type="checkbox" name="consumeUsage" checked />
+        {{localize "SdS.AbilityUseConsume"}}
+      </label>
     </div>
-    {{/if}}
+  {{/if}}
 
-    {{#if consumeRecharge}}
+  {{#if consumeResource}}
     <div class="form-group">
-        <label class="checkbox">
-            <input type="checkbox" name="consumeRecharge" checked>{{localize "SdS.ConsumeRecharge"}}
-        </label>
+      <label class="checkbox">
+        <input type="checkbox" name="consumeResource" checked />
+        {{localize "SdS.ConsumeResource"}}
+      </label>
     </div>
-    {{/if}}
+  {{/if}}
 
-    {{#if createTemplate}}
+  {{#if consumeRecharge}}
     <div class="form-group">
-        <label class="checkbox">
-            <input type="checkbox" name="createMeasuredTemplate" checked>{{localize "SdS.PlaceTemplate"}}
-        </label>
+      <label class="checkbox">
+        <input type="checkbox" name="consumeRecharge" checked />
+        {{localize "SdS.ConsumeRecharge"}}
+      </label>
     </div>
-    {{/if}}
+  {{/if}}
+
+  {{#if createTemplate}}
+    <div class="form-group">
+      <label class="checkbox">
+        <input type="checkbox" name="createMeasuredTemplate" checked />
+        {{localize "SdS.PlaceTemplate"}}
+      </label>
+    </div>
+  {{/if}}
 </form>

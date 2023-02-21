@@ -528,6 +528,7 @@
   "SdS.ItemRarityLegendary": "legendary",
   "SdS.ItemRarityArtifact": "artifact",
   "SdS.ItemNoUses": "{name} has no available uses remaining.",
+
   "SdS.FeatureActive": "Active Abilities",
   "SdS.FeatureAdd": "Create Feature",
   "SdS.FeatureAttack": "Feature Attack",
@@ -539,6 +540,7 @@
   "SdS.Feats": "Feats",
   "SdS.FeetAbbr": "ft.",
   "SdS.Filter": "Filter",
+  "SdS.NotEnoughMana": "Not enough mana for {name}.",
   "SdS.FilterNoSpells": "No spells found for this set of filters.",
   "SdS.NoSpellLevels": "This character has no spellcaster levels, but you may add spells manually.",
   "SdS.FlagsInstructions": "Configure character features and traits which fine-tune behaviors of the SdS system.",

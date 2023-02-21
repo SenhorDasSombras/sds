@@ -1772,11 +1772,11 @@ class HitPointsAdvancement extends Advancement$1 {
     if (value === undefined) return;
     this.actor.updateSource({
       "system.attributes.hp.value":
-      this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
+        this.actor.system.attributes.hp.value + this.#getApplicableValue(value),
     });
     this.actor.updateSource({
       "system.attributes.hp.max":
-      this.actor.system.attributes.hp.max + this.#getApplicableValue(value),
+        this.actor.system.attributes.hp.max + this.#getApplicableValue(value),
     });
     this.updateSource({ value: data });
   }
@@ -1800,7 +1800,7 @@ class HitPointsAdvancement extends Advancement$1 {
     });
     this.actor.updateSource({
       "system.attributes.hp.max":
-      this.actor.system.attributes.hp.max - this.#getApplicableValue(value),
+        this.actor.system.attributes.hp.max - this.#getApplicableValue(value),
     });
     const source = { [level]: this.value[level] };
     this.updateSource({ [`value.-=${level}`]: null });
@@ -1865,7 +1865,11 @@ class ManaPointsAdvancement extends Advancement$1 {
   /* -------------------------------------------- */
 
   valueForLevel(level) {
-    return this.constructor.valueForLevel(this.value, this.mana_percentage, level);
+    return this.constructor.valueForLevel(
+      this.value,
+      this.mana_percentage,
+      level
+    );
   }
 
   /* -------------------------------------------- */
@@ -1929,15 +1933,17 @@ class ManaPointsAdvancement extends Advancement$1 {
 
   /** @inheritdoc */
   apply(level, data) {
-    let value = this.constructor.valueForLevel(data, this.mana_percentage, level);
+    let value = this.constructor.valueForLevel(
+      data,
+      this.mana_percentage,
+      level
+    );
     if (value === undefined) return;
     this.actor.updateSource({
-      "system.attributes.mana.value":
-       this.#getApplicableValue(value),
+      "system.attributes.mana.value": this.#getApplicableValue(value),
     });
     this.actor.updateSource({
-      "system.attributes.mana.max":
-       this.#getApplicableValue(value),
+      "system.attributes.mana.max": this.#getApplicableValue(value),
     });
     this.updateSource({ value: data });
   }
@@ -1957,11 +1963,12 @@ class ManaPointsAdvancement extends Advancement$1 {
     if (value === undefined) return;
     this.actor.updateSource({
       "system.attributes.mana.value":
-      this.actor.system.attributes.mana.value - this.#getApplicableValue(value),
+        this.actor.system.attributes.mana.value -
+        this.#getApplicableValue(value),
     });
     this.actor.updateSource({
       "system.attributes.mana.max":
-      this.actor.system.attributes.mana.max - this.#getApplicableValue(value),
+        this.actor.system.attributes.mana.max - this.#getApplicableValue(value),
     });
     const source = { [level]: this.value[level] };
     this.updateSource({ [`value.-=${level}`]: null });
@@ -3110,7 +3117,7 @@ SdS.spell_tags = {
   touch: { label: "SdS.SpellTagTouch" },
   util: { label: "SdS.SpellTagUtilities" },
   weapon: { label: "SdS.SpellTagWeapon" },
-}
+};
 preLocalize("spell_tags", { key: "label", sort: true });
 
 /* -------------------------------------------- */
@@ -4042,7 +4049,7 @@ SdS.MANA_PER_LEVEL = {
   17: 550_000,
   18: 750_000,
   19: 1_400_000,
-  20: 2_000_000
+  20: 2_000_000,
 };
 
 /* -------------------------------------------- */
@@ -5625,8 +5632,7 @@ function keyLabel(trait, key) {
   }
 
   for (const childrenKey of Object.values(traitConfig.children ?? {})) {
-    if (CONFIG.SdS[childrenKey]?.[key])
-      return CONFIG.SdS[childrenKey]?.[key];
+    if (CONFIG.SdS[childrenKey]?.[key]) return CONFIG.SdS[childrenKey]?.[key];
   }
 
   for (const idsKey of traitConfig.subtypes?.ids ?? []) {
@@ -6186,6 +6192,7 @@ class AbilityUseDialog extends Dialog {
       }),
       note: this._getAbilityUseNote(item, uses, recharge),
       consumeSpellSlot: false,
+      consumeSpellMana: false,
       consumeRecharge: recharges,
       consumeResource:
         resource.target && (!item.hasAttack || resource.type !== "ammo"),
@@ -6244,15 +6251,19 @@ class AbilityUseDialog extends Dialog {
   static _getSpellData(actorData, itemData, data) {
     // Determine whether the spell may be up-cast
     const lvl = itemData.level;
+    const consumeSpellMana =
+      lvl > 0 && Number.isInteger(itemData.mana) && itemData.mana > 0;
+
     const consumeSpellSlot =
       lvl > 0 &&
-      CONFIG.SdS.spellUpcastModes.includes(itemData.preparation.mode);
-
+      CONFIG.SdS.spellUpcastModes.includes(itemData.preparation.mode) &&
+      !consumeSpellMana;
     // If can't upcast, return early and don't bother calculating available spell slots
-    if (!consumeSpellSlot) {
+    if (!consumeSpellSlot || !consumeSpellMana) {
       return foundry.utils.mergeObject(data, {
         isSpell: true,
         consumeSpellSlot,
+        consumeSpellMana,
       });
     }
 
@@ -6308,6 +6319,7 @@ class AbilityUseDialog extends Dialog {
     return foundry.utils.mergeObject(data, {
       isSpell: true,
       consumeSpellSlot,
+      consumeSpellMana,
       spellLevels,
     });
   }
@@ -7395,10 +7407,18 @@ class Item5e extends Item {
     // Reference aspects of the item data necessary for usage
     const resource = is.consume || {}; // Resource consumption
     const isSpell = item.type === "spell"; // Does the item require a spell slot?
+
+    const requireSpellMana =
+      isSpell &&
+      is.level > 0 &&
+      Number.isInteger(item.system.mana) &&
+      item.system.mana > 0;
+
     const requireSpellSlot =
       isSpell &&
       is.level > 0 &&
-      CONFIG.SdS.spellUpcastModes.includes(is.preparation.mode);
+      CONFIG.SdS.spellUpcastModes.includes(is.preparation.mode) &&
+      !requireSpellMana;
 
     // Define follow-up actions resulting from the item usage
     config = foundry.utils.mergeObject(
@@ -7414,6 +7434,7 @@ class Item5e extends Item {
             : is.level
           : null,
         consumeSpellSlot: requireSpellSlot,
+        consumeSpellMana: requireSpellMana,
         consumeUsage: !!is.uses?.per && is.uses?.max > 0,
       },
       config
@@ -7426,6 +7447,7 @@ class Item5e extends Item {
         config.consumeRecharge ||
         config.consumeResource ||
         config.consumeSpellSlot ||
+        config.consumeSpellMana ||
         config.consumeUsage;
 
     /**
@@ -7552,6 +7574,7 @@ class Item5e extends Item {
     consumeRecharge,
     consumeResource,
     consumeSpellSlot,
+    consumeSpellMana,
     consumeSpellLevel,
     consumeUsage,
   }) {
@@ -7579,6 +7602,20 @@ class Item5e extends Item {
         resourceUpdates
       );
       if (canConsume === false) return false;
+    }
+
+    if (consumeSpellMana) {
+      const spellManaConsumption = Number(this.system.mana ?? 0);
+      const actorMana = Number(this.actor?.system.attributes.mana.value ?? 0);
+      const newActorMana = actorMana - spellManaConsumption;
+      const hasSpellUseWorked = newActorMana >= 0;
+      if (!hasSpellUseWorked) {
+        ui.notifications.warn(
+          game.i18n.format("SdS.NotEnoughMana", { name: this.name })
+        );
+        return false;
+      }
+      actorUpdates[`system.attributes.mana.value`] = newActorMana;
     }
 
     // Consume Spell Slots
@@ -7921,14 +7958,10 @@ class Item5e extends Item {
       !["loot", "tool"].includes(this.type)
     ) {
       if (data.attunement === CONFIG.SdS.attunementTypes.REQUIRED) {
-        props.push(
-          CONFIG.SdS.attunements[CONFIG.SdS.attunementTypes.REQUIRED]
-        );
+        props.push(CONFIG.SdS.attunements[CONFIG.SdS.attunementTypes.REQUIRED]);
       }
       props.push(
-        game.i18n.localize(
-          data.equipped ? "SdS.Equipped" : "SdS.Unequipped"
-        ),
+        game.i18n.localize(data.equipped ? "SdS.Equipped" : "SdS.Unequipped"),
         game.i18n.localize(
           data.proficient ? "SdS.Proficient" : "SdS.NotProficient"
         )
@@ -7963,9 +7996,7 @@ class Item5e extends Item {
   _consumableChatData(data, labels, props) {
     props.push(
       CONFIG.SdS.consumableTypes[data.consumableType],
-      `${data.uses.value}/${data.uses.max} ${game.i18n.localize(
-        "SdS.Charges"
-      )}`
+      `${data.uses.value}/${data.uses.max} ${game.i18n.localize("SdS.Charges")}`
     );
     data.hasCharges = data.uses.value >= 0;
   }
@@ -9030,9 +9061,7 @@ class Item5e extends Item {
 
     // Check to make sure the updated class level isn't below zero
     if (changed.system.levels <= 0) {
-      ui.notifications.warn(
-        game.i18n.localize("SdS.MaxClassLevelMinimumWarn")
-      );
+      ui.notifications.warn(game.i18n.localize("SdS.MaxClassLevelMinimumWarn"));
       changed.system.levels = 1;
     }
 
@@ -9572,7 +9601,6 @@ class ActorHitPointsConfig extends BaseConfigSheet {
     this.clone = this.object.clone();
   }
 
-
   /* -------------------------------------------- */
 
   /** @override */
@@ -9688,7 +9716,6 @@ class ActorManaPointsConfig extends BaseConfigSheet {
     this.clone = this.object.clone();
   }
 
-
   /* -------------------------------------------- */
 
   /** @override */
@@ -9742,7 +9769,10 @@ class ActorManaPointsConfig extends BaseConfigSheet {
     const maxDelta =
       this.clone.system.attributes.mana.max -
       this.document.system.attributes.mana.max;
-    mana.value = Math.max(this.document.system.attributes.mana.value + maxDelta, 0);
+    mana.value = Math.max(
+      this.document.system.attributes.mana.value + maxDelta,
+      0
+    );
     return this.document.update({ "system.attributes.mana": mana });
   }
 
@@ -9863,9 +9893,7 @@ class ActorMovementConfig extends BaseConfigSheet {
 
   /** @override */
   get title() {
-    return `${game.i18n.localize("SdS.MovementConfig")}: ${
-      this.document.name
-    }`;
+    return `${game.i18n.localize("SdS.MovementConfig")}: ${this.document.name}`;
   }
 
   /* -------------------------------------------- */
@@ -10690,9 +10718,7 @@ class Actor5e extends Actor {
       }
 
       // Attuned items
-      else if (
-        item.system.attunement === CONFIG.SdS.attunementTypes.ATTUNED
-      ) {
+      else if (item.system.attunement === CONFIG.SdS.attunementTypes.ATTUNED) {
         this.system.attributes.attunement.value += 1;
       }
     }
@@ -14343,9 +14369,7 @@ class AdvancementManager extends Application {
         buttons: {
           close: {
             icon: '<i class="fas fa-times"></i>',
-            label: game.i18n.localize(
-              "SdS.AdvancementManagerCloseButtonStop"
-            ),
+            label: game.i18n.localize("SdS.AdvancementManagerCloseButtonStop"),
             callback: () => super.close(options),
           },
           continue: {
@@ -15071,9 +15095,7 @@ class ActorSheet5e extends ActorSheet {
       [
         movement.fly,
         `${game.i18n.localize("SdS.MovementFly")} ${movement.fly}${
-          movement.hover
-            ? ` (${game.i18n.localize("SdS.MovementHover")})`
-            : ""
+          movement.hover ? ` (${game.i18n.localize("SdS.MovementHover")})` : ""
         }`,
       ],
       [
@@ -15229,8 +15251,7 @@ class ActorSheet5e extends ActorSheet {
     if (ac.shield !== 0)
       attribution.push({
         label:
-          this.actor.shield?.name ??
-          game.i18n.localize("SdS.EquipmentShield"),
+          this.actor.shield?.name ?? game.i18n.localize("SdS.EquipmentShield"),
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         value: ac.shield,
       });
@@ -16659,8 +16680,7 @@ class ActorSheet5eCharacter extends ActorSheet5e {
 
     // Sort classes and interleave matching subclasses, put unmatched subclasses into features so they don't disappear
     classes.sort((a, b) => b.system.levels - a.system.levels);
-    const maxLevelDelta =
-      CONFIG.SdS.maxLevel - this.actor.system.details.level;
+    const maxLevelDelta = CONFIG.SdS.maxLevel - this.actor.system.details.level;
     classes = classes.reduce((arr, cls) => {
       const ctx = (context.itemContext[cls.id] ??= {});
       ctx.availableLevels = Array.fromRange(CONFIG.SdS.maxLevel + 1)
@@ -17071,11 +17091,9 @@ class ActorSheet5eNPC extends ActorSheet5e {
     const label = [];
     if (ac.calc === "default")
       label.push(
-        this.actor.armor?.name ||
-          game.i18n.localize("SdS.ArmorClassUnarmored")
+        this.actor.armor?.name || game.i18n.localize("SdS.ArmorClassUnarmored")
       );
-    else
-      label.push(game.i18n.localize(CONFIG.SdS.armorClasses[ac.calc].label));
+    else label.push(game.i18n.localize(CONFIG.SdS.armorClasses[ac.calc].label));
     if (this.actor.shield) label.push(this.actor.shield.name);
     return label.filterJoin(", ");
   }
@@ -18525,8 +18543,10 @@ class ItemSheet5e extends ItemSheet {
 
       // Spell
       isSpell: this.item.type == "spell",
-      isElemental: Boolean(item.system.schools?.includes("elem") ||
-                           item.system.spell_schools?.includes("elem")),
+      isElemental: Boolean(
+        item.system.schools?.includes("elem") ||
+          item.system.spell_schools?.includes("elem")
+      ),
 
       // Armor Class
       isArmor: item.isArmor,
@@ -18778,8 +18798,7 @@ class ItemSheet5e extends ItemSheet {
           this.item.system.equipped ? "SdS.Equipped" : "SdS.Unequipped"
         );
       case "feat":
-        const typeConfig =
-          CONFIG.SdS.featureTypes[this.item.system.type.value];
+        const typeConfig = CONFIG.SdS.featureTypes[this.item.system.type.value];
         if (typeConfig?.subtypes)
           return typeConfig.subtypes[this.item.system.type.subtype] ?? null;
         break;
@@ -18787,9 +18806,7 @@ class ItemSheet5e extends ItemSheet {
         return CONFIG.SdS.spellPreparationModes[this.item.system.preparation];
       case "tool":
         return game.i18n.localize(
-          this.item.system.proficient
-            ? "SdS.Proficient"
-            : "SdS.NotProficient"
+          this.item.system.proficient ? "SdS.Proficient" : "SdS.NotProficient"
         );
     }
     return null;
@@ -18820,7 +18837,7 @@ class ItemSheet5e extends ItemSheet {
           ...labels.elements.map((v) => SdS.spellElements[v]),
           labels.components.vsm,
           labels.materials,
-          ...labels.components.tags,
+          ...labels.components.tags
         );
         break;
       case "weapon":
@@ -18952,9 +18969,7 @@ class ItemSheet5e extends ItemSheet {
       formData.system.identifier = this.item._source.system.identifier;
       this.form.querySelector("input[name='system.identifier']").value =
         formData.system.identifier;
-      return ui.notifications.error(
-        game.i18n.localize("SdS.IdentifierError")
-      );
+      return ui.notifications.error(game.i18n.localize("SdS.IdentifierError"));
     }
 
     // Return the flattened submission data
@@ -19237,9 +19252,7 @@ class ItemSheet5e extends ItemSheet {
           ? skills.choices
           : Object.keys(CONFIG.SdS.skills);
         options.choices = Object.fromEntries(
-          Object.entries(CONFIG.SdS.skills).filter(([s]) =>
-            choices.includes(s)
-          )
+          Object.entries(CONFIG.SdS.skills).filter(([s]) => choices.includes(s))
         );
         options.maximum = skills.number;
         options.labelKey = "label";
