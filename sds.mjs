@@ -18564,6 +18564,7 @@ class ItemSheet5e extends ItemSheet {
         item.system.schools?.includes("elem") ||
           item.system.spell_schools?.includes("elem")
       ),
+      concentration: this.item.system.components['concentration'],
 
       // Armor Class
       isArmor: item.isArmor,
@@ -23804,6 +23805,20 @@ class SpellData extends SystemDataModel.mixin(
         min: 0,
         label: "SdS.Mana",
       }),
+      concentration_mana: new foundry.data.fields.SchemaField(
+        {
+          value: new FormulaField({
+            required: true,
+            deterministic: true,
+          }),
+          units: new foundry.data.fields.StringField({
+            required: true,
+            blank: true,
+            label: "SdS.DurationType",
+          }),
+        },
+        { label: "SdS.SpellConcentrationMana" }
+      ),
       materials: new foundry.data.fields.SchemaField(
         {
           value: new foundry.data.fields.StringField({

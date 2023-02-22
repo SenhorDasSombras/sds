@@ -57,6 +57,34 @@
                 </select>
             </div>
 
+            {{!-- Mana Consumption --}}
+            <div class="form-group">
+                <label>{{ localize "SdS.Mana" }}</label>
+                <div class="form-fields">
+                    <input type="number" step="1" name="system.mana" value="{{system.mana}}" placeholder="0">
+                </div>
+            </div>
+
+            {{!-- Mana for Concentration --}}
+            {{#if concentration }}
+            <div class="form-group input-select">
+                <label>{{ localize "SdS.SpellConcentrationMana" }}</label>
+                <div class="form-fields">
+                    <input type="text" name="system.concentration_mana.value" value="{{source.concentration_mana.value}}"
+                        placeholder="&mdash;" data-tooltip="SdS.SpellConcentrationValue" data-formula-editor>
+                    <span class="sep">{{localize "SdS.per"}}</span>
+                    <select name="system.concentration_mana.units" data-tooltip="SdS.DurationType">
+                        {{#select system.concentration_mana.units}}
+                            <option value=""></option>
+                            {{#each config.timePeriods as |name key|}}
+                            <option value="{{key}}">{{name}}</option>
+                            {{/each}}
+                        {{/select}}
+                    </select>
+                </div>
+            </div>
+            {{/if}}
+
             {{!-- Spell School --}}
             <div class="form-group">
                 <label>

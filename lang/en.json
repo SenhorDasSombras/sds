@@ -962,6 +962,8 @@
   "SdS.Spellcasting": "Spellcasting",
   "SdS.SpellClasses": "Spell Classes",
   "SdS.SpellComponents": "Spell Components",
+  "SdS.SpellConcentrationMana": "Spell Concentration Mana",
+  "SdS.SpellConcentrationValue": "Mana Consumption per time",
   "SdS.SpellCreate": "Create Spell",
   "SdS.SpellDC": "Spell DC",
   "SdS.SpellDetails": "Spell Details",
