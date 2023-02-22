@@ -165,6 +165,7 @@
             {{!-- Misc Information --}}
             <h3 class="form-header">{{ localize "SdS.SpellMisc" }}</h3>
 
+            {{!-- Spell Tag --}}
             <div class="form-group">
                 <label>
                     {{ localize "SdS.SpellTags" }}
@@ -178,6 +179,25 @@
                     <ul class="traits-list">
                         {{#each system.tags}}
                             <li class="tag {{this}}">{{lookup (lookup ../config.spell_tags this) "label"}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+
+            {{!-- Spell Class --}}
+            <div class="form-group">
+                <label>
+                    {{ localize "SdS.SpellClasses" }}
+                    {{#if editable}}
+                    <a class="trait-selector spell-classes" data-target="system.classes" data-options="classes">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {{/if}}
+                </label>
+                <div class="form-fields">
+                    <ul class="traits-list">
+                        {{#each system.classes}}
+                            <li class="tag {{this}}">{{lookup ../config.spellClasses this}}</li>
                         {{/each}}
                     </ul>
                 </div>

@@ -4256,6 +4256,23 @@ preLocalize("spellElements", { sort: true });
 /* -------------------------------------------- */
 
 /**
+ * Elements to which an elemental spell can belong.
+ * @enum {string}
+ */
+SdS.spellClasses = {
+  archer: "SdS.ClassArcher",
+  bard: "SdS.ClassBard",
+  fighter: "SdS.ClassFighter",
+  mage: "SdS.ClassMage",
+  monk: "SdS.ClassMonk",
+  rogue: "SdS.ClassRogue",
+  shaman: "SdS.ClassShaman",
+};
+preLocalize("spellClasses", { sort: true });
+
+/* -------------------------------------------- */
+
+/**
  * Spell scroll item ID within the `SdS.sourcePacks` compendium for each level.
  * @enum {string}
  */
@@ -19261,6 +19278,10 @@ class ItemSheet5e extends ItemSheet {
         options.choices = CONFIG.SdS.spell_tags;
         options.valueKey = null;
         options.labelKey = "label";
+        break;
+      case "classes":
+        options.choices = CONFIG.SdS.spellClasses;
+        options.valueKey = null;
         break;
       case "schools":
         options.choices = CONFIG.SdS.spellSchools;
