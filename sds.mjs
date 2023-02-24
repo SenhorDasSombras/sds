@@ -18564,7 +18564,7 @@ class ItemSheet5e extends ItemSheet {
         item.system.schools?.includes("elem") ||
           item.system.spell_schools?.includes("elem")
       ),
-      concentration: this.item.system.components['concentration'],
+      concentration: this.item.system.components?.concentration,
 
       // Armor Class
       isArmor: item.isArmor,
