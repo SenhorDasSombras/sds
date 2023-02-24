@@ -4231,6 +4231,7 @@ SdS.spellSchools = {
   inv: "SdS.SchoolInv",
   psy: "SdS.SchoolPsy",
   pur: "SdS.SchoolPur",
+  rec: "SdS.SchoolRec",
 };
 preLocalize("spellSchools", { sort: true });
 
