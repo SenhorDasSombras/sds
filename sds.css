@@ -1326,13 +1326,16 @@ h5 {
 }
 .sds.sheet.actor .spell-school,
 .sds.sheet.actor .spell-action,
-.sds.sheet.actor .spell-target {
+.sds.sheet.actor .spell-target,
+.sds.sheet.actor .spell-mana {
   flex: 0 0 100px;
   font-size: 12px;
   color: #7a7971;
   text-align: center;
   border-right: 1px solid #c9c7b8;
+  word-break: break-all;
 }
+
 .sds.sheet.actor .spell-component {
   line-height: 14px;
 }
@@ -1971,7 +1974,7 @@ h5 {
 /*  Basic Structure                          */
 /* ----------------------------------------- */
 .sds.sheet.actor.character {
-  min-width: 720px;
+  min-width: 800px;
   min-height: 730px;
   /* ----------------------------------------- */
   /*  Sheet Header                             */

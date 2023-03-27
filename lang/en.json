@@ -758,6 +758,7 @@
   "SdS.ManaPointsOverride": "Maximum Mana Points Override",
   "SdS.ManaPointsTemp": "Temporary Mana Points",
   "SdS.ManaPointsTempMax": "Temporary Maximum Mana Points",
+  "SdS.ManaUsage": "Mana Usage",
   "SdS.MP": "MP",
   "SdS.Max": "Max",
   "SdS.MaxCharacterLevelExceededWarn": "Character cannot be advanced past level {max}.",

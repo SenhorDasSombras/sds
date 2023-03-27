@@ -6269,14 +6269,14 @@ class AbilityUseDialog extends Dialog {
   static _getSpellData(actorData, itemData, data) {
     // Determine whether the spell may be up-cast
     const lvl = itemData.level;
-    const consumeSpellMana =
-      lvl > 0 && Number.isInteger(itemData.mana) && itemData.mana > 0;
 
-    const consumeSpellSlot =
-      lvl > 0 &&
-      CONFIG.SdS.spellUpcastModes.includes(itemData.preparation.mode) &&
-      !consumeSpellMana;
+    const isSpell = itemData.type === "spell"; // Does the item require a spell slot?
+
+    const consumeSpellSlot = false;
     // If can't upcast, return early and don't bother calculating available spell slots
+
+    const consumeSpellMana = isSpell && CONFIG.SdS.spellUpcastModes.includes(itemData.preparation.mode);
+
     if (!consumeSpellSlot || !consumeSpellMana) {
       return foundry.utils.mergeObject(data, {
         isSpell: true,
@@ -7424,19 +7424,13 @@ class Item5e extends Item {
 
     // Reference aspects of the item data necessary for usage
     const resource = is.consume || {}; // Resource consumption
+
     const isSpell = item.type === "spell"; // Does the item require a spell slot?
 
-    const requireSpellMana =
-      isSpell &&
-      is.level > 0 &&
-      Number.isInteger(item.system.mana) &&
-      item.system.mana > 0;
+    const requireSpellSlot = false;
 
-    const requireSpellSlot =
-      isSpell &&
-      is.level > 0 &&
-      CONFIG.SdS.spellUpcastModes.includes(is.preparation.mode) &&
-      !requireSpellMana;
+    const requireSpellMana =
+      isSpell && CONFIG.SdS.spellUpcastModes.includes(is.preparation.mode);
 
     // Define follow-up actions resulting from the item usage
     config = foundry.utils.mergeObject(
