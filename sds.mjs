@@ -9822,11 +9822,11 @@ class ActorManaPointsConfig extends BaseConfigSheet {
   async _onRollManaFormula(event) {
     event.preventDefault();
     try {
-      const roll = await this.clone.rollNPCHitPoints();
+      const roll = await this.clone.rollNPCManaPoints();
       this.clone.updateSource({ "system.attributes.mana.max": roll.total });
       this.render();
     } catch (error) {
-      ui.notifications.error(game.i18n.localize("SdS.HPFormulaError"));
+      ui.notifications.error(game.i18n.localize("SdS.ManaFormulaError"));
       throw error;
     }
   }
@@ -12394,6 +12394,50 @@ class Actor5e extends Actor {
      * @param {Roll} roll      The resulting roll.
      */
     Hooks.callAll("sds.rollNPCHitPoints", this, roll);
+
+    if (rollData.chatMessage) await roll.toMessage(messageData);
+    return roll;
+  }
+
+  async rollNPCManaPoints({ chatMessage = true } = {}) {
+    if (this.type !== "npc")
+      throw new Error("NPC mana points can only be rolled for NPCs");
+    const rollData = {
+      formula: this.system.attributes.mana.formula,
+      data: this.getRollData(),
+      chatMessage,
+    };
+    const flavor = game.i18n.format("SdS.ManaFormulaRollMessage");
+    const messageData = {
+      title: `${flavor}: ${this.name}`,
+      flavor,
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      "flags.sds.roll": { type: "hitPoints" },
+    };
+
+    /**
+     * A hook event that fires before hit points are rolled for an NPC.
+     * @function sds.preRollNPCHitPoints
+     * @memberof hookEvents
+     * @param {Actor5e} actor            Actor for which the hit points are being rolled.
+     * @param {object} rollData
+     * @param {string} rollData.formula  The string formula to parse.
+     * @param {object} rollData.data     The data object against which to parse attributes within the formula.
+     * @param {object} messageData       The data object to use when creating the message.
+     */
+    Hooks.callAll("sds.preRollNPCManaPoints", this, rollData, messageData);
+
+    const roll = new Roll(rollData.formula, rollData.data);
+    await roll.evaluate({ async: true });
+
+    /**
+     * A hook event that fires after hit points are rolled for an NPC.
+     * @function sds.rollNPCHitPoints
+     * @memberof hookEvents
+     * @param {Actor5e} actor  Actor for which the hit points have been rolled.
+     * @param {Roll} roll      The resulting roll.
+     */
+    Hooks.callAll("sds.rollNPCManaPoints", this, roll);
 
     if (rollData.chatMessage) await roll.toMessage(messageData);
     return roll;
@@ -21985,6 +22029,40 @@ class NPCData extends CreatureTemplate {
             },
             { label: "SdS.HitPoints" }
           ),
+          mana: new foundry.data.fields.SchemaField(
+            {
+              value: new foundry.data.fields.NumberField({
+                nullable: false,
+                integer: true,
+                min: 0,
+                initial: 0,
+                label: "SdS.ManaPointsCurrent",
+              }),
+              max: new foundry.data.fields.NumberField({
+                nullable: true,
+                integer: true,
+                min: 0,
+                initial: null,
+                label: "SdS.ManaPointsOverride",
+              }),
+              temp: new foundry.data.fields.NumberField({
+                integer: true,
+                initial: 0,
+                min: 0,
+                label: "SdS.ManaPointsTemp",
+              }),
+              tempmax: new foundry.data.fields.NumberField({
+                integer: true,
+                initial: 0,
+                label: "SdS.ManaPointsTempMax",
+              }),
+              formula: new FormulaField({
+                required: true,
+                label: "SdS.ManaFormula",
+              }),
+            },
+            { label: "SdS.Mana" }
+          ),
         },
         { label: "SdS.Attributes" }
       ),
@@ -26268,13 +26346,13 @@ Hooks.on("renderChatPopout", (app, html, data) => Item5e.chatListeners(html));
 Hooks.on("getActorDirectoryEntryContext", Actor5e.addDirectoryContextOptions);
 
 export {
-  SdS,
-  applications,
-  canvas$1 as canvas,
-  dataModels,
-  dice,
-  documents,
-  migrations,
-  utils,
+    SdS,
+    applications,
+    canvas$1 as canvas,
+    dataModels,
+    dice,
+    documents,
+    migrations,
+    utils,
 };
 //# sourceMappingURL=sds-compiled.mjs.map

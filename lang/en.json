@@ -747,6 +747,8 @@
   "SdS.LongRestResultHitPoints": "{name} takes a long rest and recovers {health} Hit Points.",
   "SdS.LongRestResultShort": "{name} takes a long rest.",
   "SdS.Mana": "Mana",
+  "SdS.ManaFormula": "Mana Formula",
+  "SdS.ManaFormulaRollMessage": "Roll Mana Points Formula",
   "SdS.ManaPercentage": "Mana Percentage",
   "SdS.ManaPoints": "Mana Points",
   "SdS.ManaPointsBonusLevel": "Per Level Bonus",
